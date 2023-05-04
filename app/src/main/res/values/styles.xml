@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Text">
+        <item name="android:textSize">30sp</item>
+        <item name="fontFamily">monospace</item>
+        <item name="android:textColor">@color/green</item>
+    </style>
+    <style name="normalButton">
+        <item name="android:textSize">15sp</item>
+        <item name="fontFamily">monospace</item>
+        <item name="android:textColor">@color/green</item>
+        <item name="android:background">#00000000</item>
+        <item name="android:layout_margin">10dp</item>
+    </style>
+</resources>
