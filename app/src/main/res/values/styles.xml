@@ -9,7 +9,8 @@
         <item name="android:textSize">15sp</item>
         <item name="fontFamily">monospace</item>
         <item name="android:textColor">@color/green</item>
-        <item name="android:background">#00000000</item>
+        <item name="android:background">@drawable/button_choose_color</item>
         <item name="android:layout_margin">10dp</item>
+        <item name="android:theme">@style/MyTheme</item>
     </style>
 </resources>

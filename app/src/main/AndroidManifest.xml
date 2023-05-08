@@ -21,6 +21,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ActivityWithMainPage"
+            android:label="Preferences">
+        </activity>
+        <activity
+            android:name=".ActivityWithSettings"
+            android:label="Preferences">
+        </activity>
     </application>
 
 </manifest>
