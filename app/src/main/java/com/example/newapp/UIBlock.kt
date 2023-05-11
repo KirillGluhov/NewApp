@@ -53,7 +53,16 @@ class Coordinate(
 
 enum class Sides
 {
-    Left, Right, Down, Up, Null
+    Left,
+    Right,
+    Down,
+    Up,
+    Center,
+    UpRight,
+    UpLeft,
+    DownRight,
+    DownLeft,
+    Null
 }
 
 abstract class ElementInBlock(private var size: Size,
@@ -199,5 +208,11 @@ abstract class BlockUI(private var coordinateOfBlock: Coordinate,
     public fun setSymbolOfOperation(newSymbolOfOperation: String) : Unit
     {
         symbolOfOperation = newSymbolOfOperation;
+    }
+
+    public fun makeBlock()
+    {
+        
+
     }
 }

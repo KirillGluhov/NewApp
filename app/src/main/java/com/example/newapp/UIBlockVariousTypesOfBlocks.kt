@@ -1,6 +1,24 @@
 package com.example.newapp
 
+
+
 abstract class Function(coordinateOfBlock: Coordinate,
+                        sizeOfBlock: Size,
+                        holesOfBlock: Holes,
+                        inputFieldsOfBlock: InputFields,
+                        pinsOfBlock: Pins,
+                        symbolOfOperation: String) :
+    BlockUI(coordinateOfBlock,
+        sizeOfBlock,
+        holesOfBlock,
+        inputFieldsOfBlock,
+        pinsOfBlock,
+        symbolOfOperation)
+{
+
+}
+
+abstract class Variable(coordinateOfBlock: Coordinate,
                         sizeOfBlock: Size,
                         holesOfBlock: Holes,
                         inputFieldsOfBlock: InputFields,
