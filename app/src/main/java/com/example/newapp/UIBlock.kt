@@ -1,10 +1,9 @@
 package com.example.newapp
 
 class Size(
-    private var height: Int,
-    private var width: Int
-) {
-
+    private var height: Int = 0,
+    private var width: Int = 0)
+{
     public fun setHeight(newHeight: Int) : Unit
     {
         height = newHeight;
@@ -12,12 +11,6 @@ class Size(
 
     public fun setWidth(newWidth: Int) : Unit
     {
-        width = newWidth;
-    }
-
-    public fun setSize(newHeight: Int, newWidth: Int) : Unit
-    {
-        height = newHeight;
         width = newWidth;
     }
 
@@ -33,8 +26,8 @@ class Size(
 }
 
 class Coordinate(
-    private var x: Int,
-    private var y: Int
+    private var x: Int = 0,
+    private var y: Int = 0
 ) {
 
     public fun setX(newX: Int) : Unit
@@ -44,12 +37,6 @@ class Coordinate(
 
     public fun setY(newY: Int) : Unit
     {
-        y = newY;
-    }
-
-    public fun setCoordinates(newX: Int, newY: Int) : Unit
-    {
-        x = newX;
         y = newY;
     }
 
@@ -64,55 +51,97 @@ class Coordinate(
     }
 }
 
-class Holes (private var numberOfRightHoles: Int,
-             private var numberOfLeftHoles: Int,
-             private var numberOfDownHoles: Int)
+enum class Sides
 {
-    public fun setNumberOfRightHoles(newNumberOfRightHoles: Int) : Unit
+    Left, Right, Down, Up, Null
+}
+
+abstract class ElementInBlock(private var size: Size = Size(0, 0),
+                              private var coordinate: Coordinate = Coordinate(0, 0),
+                              private var side: Sides = Sides.Null)
+{
+    public fun setElementSize(newSize: Size)
     {
-        numberOfRightHoles = newNumberOfRightHoles;
+        size = newSize;
     }
 
-    public fun setNumberOfLeftHoles(newNumberOfLeftHoles: Int) : Unit
+    public fun setElementCoordinate(newCoordinate: Coordinate)
     {
-        numberOfLeftHoles = newNumberOfLeftHoles;
+        coordinate = newCoordinate;
     }
 
-    public fun setNumberOfDownHoles(newNumberOfDownHoles: Int) : Unit
+    public fun setElementSide(newSide: Sides)
     {
-        numberOfDownHoles = newNumberOfDownHoles;
+        side = newSide;
     }
 
-    public fun setAllHoles(
-        newNumberOfLeftHoles: Int,
-        newNumberOfRightHoles: Int,
-        newNumberOfDownHoles: Int) : Unit
+    public fun getElementSize() : Size
     {
-        numberOfRightHoles = newNumberOfRightHoles;
-        numberOfLeftHoles = newNumberOfLeftHoles;
-        numberOfDownHoles = newNumberOfDownHoles;
+        return size;
     }
 
-    public fun getNumberOfRightHoles() : Int
+    public fun getElementCoordinate() : Coordinate
     {
-        return numberOfRightHoles;
+        return coordinate;
     }
 
-    public fun getNumberOfLeftHoles() : Int
+    public fun getElementSide() : Sides
     {
-        return numberOfLeftHoles;
+        return side;
     }
 
-    public fun getNumberOfDownHoles() : Int
+}
+
+class Hole : ElementInBlock()
+{
+
+}
+
+class Field : ElementInBlock()
+{
+
+}
+
+class Pin : ElementInBlock()
+{
+
+}
+
+class InputFields(private var listOfFields: List<Field>)
+{
+    public fun getInputFields() : List<Field>
     {
-        return numberOfDownHoles;
+        return listOfFields;
+    }
+
+}
+
+class Holes(private var listOfHoles: List<Hole>)
+{
+    public fun getListOfHoles() : List<Hole>
+    {
+        return listOfHoles;
+    }
+
+}
+
+class Pins(private var listOfPins: List<Pin>)
+{
+    public fun getListOfPins() : List<Pin>
+    {
+        return listOfPins;
     }
 }
+
 
 abstract class BlockUI(private var coordinateOfBlock: Coordinate,
                        private var sizeOfBlock: Size,
-                       private var holesOfBlock: Holes)
+                       private var holesOfBlock: Holes,
+                       private var inputFieldsOfBlock: InputFields,
+                       private var pinsOfBlock: Pins,
+                       private var symbolOfOperation: String)
 {
 
 }
+
 
