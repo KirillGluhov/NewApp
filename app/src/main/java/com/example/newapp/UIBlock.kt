@@ -1,8 +1,8 @@
 package com.example.newapp
 
 class Size(
-    private var height: Int = 0,
-    private var width: Int = 0)
+    private var height: Int,
+    private var width: Int)
 {
     public fun setHeight(newHeight: Int) : Unit
     {
@@ -26,9 +26,9 @@ class Size(
 }
 
 class Coordinate(
-    private var x: Int = 0,
-    private var y: Int = 0
-) {
+    private var x: Int,
+    private var y: Int)
+{
 
     public fun setX(newX: Int) : Unit
     {
@@ -56,9 +56,9 @@ enum class Sides
     Left, Right, Down, Up, Null
 }
 
-abstract class ElementInBlock(private var size: Size = Size(0, 0),
-                              private var coordinate: Coordinate = Coordinate(0, 0),
-                              private var side: Sides = Sides.Null)
+abstract class ElementInBlock(private var size: Size,
+                              private var coordinate: Coordinate,
+                              private var side: Sides)
 {
     public fun setElementSize(newSize: Size)
     {
@@ -92,22 +92,22 @@ abstract class ElementInBlock(private var size: Size = Size(0, 0),
 
 }
 
-class Hole : ElementInBlock()
+open class Hole(size: Size, coordinate: Coordinate, side: Sides) : ElementInBlock(size, coordinate, side)
 {
 
 }
 
-class Field : ElementInBlock()
+open class Field(size: Size, coordinate: Coordinate, side: Sides) : ElementInBlock(size, coordinate, side)
 {
 
 }
 
-class Pin : ElementInBlock()
+open class Pin(size: Size, coordinate: Coordinate, side: Sides) : ElementInBlock(size, coordinate, side)
 {
 
 }
 
-class InputFields(private var listOfFields: List<Field>)
+open class InputFields(private var listOfFields: List<Field>)
 {
     public fun getInputFields() : List<Field>
     {
@@ -116,7 +116,7 @@ class InputFields(private var listOfFields: List<Field>)
 
 }
 
-class Holes(private var listOfHoles: List<Hole>)
+open class Holes(private var listOfHoles: List<Hole>)
 {
     public fun getListOfHoles() : List<Hole>
     {
@@ -125,7 +125,7 @@ class Holes(private var listOfHoles: List<Hole>)
 
 }
 
-class Pins(private var listOfPins: List<Pin>)
+open class Pins(private var listOfPins: List<Pin>)
 {
     public fun getListOfPins() : List<Pin>
     {
@@ -141,7 +141,63 @@ abstract class BlockUI(private var coordinateOfBlock: Coordinate,
                        private var pinsOfBlock: Pins,
                        private var symbolOfOperation: String)
 {
+    public fun getCoordinateOfBlock() : Coordinate
+    {
+        return coordinateOfBlock;
+    }
 
+    public fun getSizeOfBlock() : Size
+    {
+        return sizeOfBlock;
+    }
+
+    public fun getHolesOfBlock() : Holes
+    {
+        return holesOfBlock;
+    }
+
+    public fun getInputFieldsOfBlock() : InputFields
+    {
+        return inputFieldsOfBlock;
+    }
+
+    public fun getPinsOfBlock() : Pins
+    {
+        return pinsOfBlock;
+    }
+
+    public fun getSymbolOfOperation() : String
+    {
+        return symbolOfOperation;
+    }
+
+    public fun setCoordinateOfBlock(newCoordinateOfBlock: Coordinate) : Unit
+    {
+        coordinateOfBlock = newCoordinateOfBlock;
+    }
+
+    public fun setSizeOfBlock(newSizeOfBlock: Size) : Unit
+    {
+        sizeOfBlock = newSizeOfBlock;
+    }
+
+    public fun setHolesOfBlock(newHolesOfBlock: Holes) : Unit
+    {
+        holesOfBlock = newHolesOfBlock;
+    }
+
+    public fun setInputFieldsOfBlock(newInputFieldsOfBlock: InputFields) : Unit
+    {
+        inputFieldsOfBlock = newInputFieldsOfBlock;
+    }
+
+    public fun setPinsOfBlock(newPinsOfBlock: Pins) : Unit
+    {
+        pinsOfBlock = newPinsOfBlock;
+    }
+
+    public fun setSymbolOfOperation(newSymbolOfOperation: String) : Unit
+    {
+        symbolOfOperation = newSymbolOfOperation;
+    }
 }
-
-
