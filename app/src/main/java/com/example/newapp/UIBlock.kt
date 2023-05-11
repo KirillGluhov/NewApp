@@ -212,7 +212,15 @@ abstract class BlockUI(private var coordinateOfBlock: Coordinate,
 
     public fun makeBlock()
     {
-        
+        if (pinsOfBlock.getListOfPins().size == 2)
+        {
+            
+
+        }
+        else if (pinsOfBlock.getListOfPins().size == 4)
+        {
+
+        }
 
     }
 }
