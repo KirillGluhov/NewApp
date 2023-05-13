@@ -1,4 +1,12 @@
-package com.example.newapp
+package uiblock
+
+import androidx.constraintlayout.widget.ConstraintLayout;
+import android.content.Context
+import android.os.Bundle
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import com.example.newapp.R
+import com.google.android.material.internal.ViewUtils.dpToPx
 
 class Size(
     private var height: Int,
@@ -111,8 +119,15 @@ open class Field(size: Size, coordinate: Coordinate, side: Sides) : ElementInBlo
 
 }
 
-open class Pin(size: Size, coordinate: Coordinate, side: Sides) : ElementInBlock(size, coordinate, side)
+open class Pin(size: Size = Size(20, 20), coordinate: Coordinate, side: Sides) : ElementInBlock(size, coordinate, side)
 {
+    public fun makePin(context: Context)
+    {
+        val newButton = Button(context);
+        newButton.layoutParams.height = (getElementSize().getHeight() * context.getResources().getDisplayMetrics().density).toInt();
+        newButton.layoutParams.width = (getElementSize().getWidth() * context.getResources().getDisplayMetrics().density).toInt();
+        newButton.setBackgroundResource(R.drawable.pin);
+    }
 
 }
 
@@ -134,11 +149,16 @@ open class Holes(private var listOfHoles: List<Hole>)
 
 }
 
-open class Pins(private var listOfPins: List<Pin>)
+open class Pins(private var listOfPins: MutableList<Pin>)
 {
     public fun getListOfPins() : List<Pin>
     {
         return listOfPins;
+    }
+
+    public fun addTwoPins(firstPin: Pin, secondPin: Pin)
+    {
+
     }
 }
 
@@ -210,17 +230,15 @@ abstract class BlockUI(private var coordinateOfBlock: Coordinate,
         symbolOfOperation = newSymbolOfOperation;
     }
 
-    public fun makeBlock()
+    public fun makeBlock(context: Context)
     {
-        if (pinsOfBlock.getListOfPins().size == 2)
-        {
-            
+        val newBlock = ConstraintLayout(context);
+        newBlock.layoutParams.height = (sizeOfBlock.getHeight() * context.getResources().getDisplayMetrics().density).toInt();
+        newBlock.layoutParams.width = (sizeOfBlock.getWidth() * context.getResources().getDisplayMetrics().density).toInt();
 
-        }
-        else if (pinsOfBlock.getListOfPins().size == 4)
-        {
+        //val newButton = Button(context);
+        //newBlock.addView(newButton);
 
-        }
 
     }
 }

@@ -1,24 +1,8 @@
-package com.example.newapp
+package uiblockvarioustypesofblocks
 
-
+import uiblock.*
 
 abstract class Function(coordinateOfBlock: Coordinate,
-                        sizeOfBlock: Size,
-                        holesOfBlock: Holes,
-                        inputFieldsOfBlock: InputFields,
-                        pinsOfBlock: Pins,
-                        symbolOfOperation: String) :
-    BlockUI(coordinateOfBlock,
-        sizeOfBlock,
-        holesOfBlock,
-        inputFieldsOfBlock,
-        pinsOfBlock,
-        symbolOfOperation)
-{
-
-}
-
-abstract class Variable(coordinateOfBlock: Coordinate,
                         sizeOfBlock: Size,
                         holesOfBlock: Holes,
                         inputFieldsOfBlock: InputFields,
@@ -114,22 +98,6 @@ abstract class AssignmentOperator(coordinateOfBlock: Coordinate,
 
 }
 
-abstract class DirectAssigment(coordinateOfBlock: Coordinate,
-                                  sizeOfBlock: Size,
-                                  holesOfBlock: Holes,
-                                  inputFieldsOfBlock: InputFields,
-                                  pinsOfBlock: Pins,
-                                  symbolOfOperation: String) :
-    AssignmentOperator(coordinateOfBlock,
-        sizeOfBlock,
-        holesOfBlock,
-        inputFieldsOfBlock,
-        pinsOfBlock,
-        symbolOfOperation)
-{
-
-}
-
 abstract class ArithmeticOperator(coordinateOfBlock: Coordinate,
                                   sizeOfBlock: Size,
                                   holesOfBlock: Holes,
@@ -146,7 +114,23 @@ abstract class ArithmeticOperator(coordinateOfBlock: Coordinate,
 
 }
 
-abstract class Addition(coordinateOfBlock: Coordinate,
+interface anyFinalBlock{
+
+}
+
+enum class FinalClasses
+{
+    Addition,
+    Substraction,
+    Modulo,
+    Division,
+    Multiplication,
+    Initialization,
+    DirectAssignment,
+    Variable
+}
+
+class Addition(coordinateOfBlock: Coordinate,
                                   sizeOfBlock: Size,
                                   holesOfBlock: Holes,
                                   inputFieldsOfBlock: InputFields,
@@ -157,12 +141,12 @@ abstract class Addition(coordinateOfBlock: Coordinate,
         holesOfBlock,
         inputFieldsOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        symbolOfOperation), anyFinalBlock
 {
 
 }
 
-abstract class Substraction(coordinateOfBlock: Coordinate,
+class Substraction(coordinateOfBlock: Coordinate,
                       sizeOfBlock: Size,
                       holesOfBlock: Holes,
                       inputFieldsOfBlock: InputFields,
@@ -173,12 +157,12 @@ abstract class Substraction(coordinateOfBlock: Coordinate,
         holesOfBlock,
         inputFieldsOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        symbolOfOperation), anyFinalBlock
 {
 
 }
 
-abstract class Modulo(coordinateOfBlock: Coordinate,
+class Modulo(coordinateOfBlock: Coordinate,
                         sizeOfBlock: Size,
                         holesOfBlock: Holes,
                         inputFieldsOfBlock: InputFields,
@@ -189,12 +173,12 @@ abstract class Modulo(coordinateOfBlock: Coordinate,
         holesOfBlock,
         inputFieldsOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        symbolOfOperation), anyFinalBlock
 {
 
 }
 
-abstract class Division(coordinateOfBlock: Coordinate,
+class Division(coordinateOfBlock: Coordinate,
                       sizeOfBlock: Size,
                       holesOfBlock: Holes,
                       inputFieldsOfBlock: InputFields,
@@ -205,12 +189,12 @@ abstract class Division(coordinateOfBlock: Coordinate,
         holesOfBlock,
         inputFieldsOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        symbolOfOperation), anyFinalBlock
 {
 
 }
 
-abstract class Multiplication(coordinateOfBlock: Coordinate,
+class Multiplication(coordinateOfBlock: Coordinate,
                         sizeOfBlock: Size,
                         holesOfBlock: Holes,
                         inputFieldsOfBlock: InputFields,
@@ -221,12 +205,12 @@ abstract class Multiplication(coordinateOfBlock: Coordinate,
         holesOfBlock,
         inputFieldsOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        symbolOfOperation), anyFinalBlock
 {
 
 }
 
-abstract class Initialization(coordinateOfBlock: Coordinate,
+class Initialization(coordinateOfBlock: Coordinate,
                              sizeOfBlock: Size,
                              holesOfBlock: Holes,
                              inputFieldsOfBlock: InputFields,
@@ -237,7 +221,67 @@ abstract class Initialization(coordinateOfBlock: Coordinate,
         holesOfBlock,
         inputFieldsOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        symbolOfOperation), anyFinalBlock
 {
+
+}
+
+class DirectAssignment(coordinateOfBlock: Coordinate,
+                      sizeOfBlock: Size,
+                      holesOfBlock: Holes,
+                      inputFieldsOfBlock: InputFields,
+                      pinsOfBlock: Pins,
+                      symbolOfOperation: String) :
+    AssignmentOperator(coordinateOfBlock,
+        sizeOfBlock,
+        holesOfBlock,
+        inputFieldsOfBlock,
+        pinsOfBlock,
+        symbolOfOperation), anyFinalBlock
+{
+
+}
+
+class Variable(coordinateOfBlock: Coordinate,
+               sizeOfBlock: Size,
+               holesOfBlock: Holes,
+               inputFieldsOfBlock: InputFields,
+               pinsOfBlock: Pins,
+               symbolOfOperation: String) :
+    BlockUI(coordinateOfBlock,
+        sizeOfBlock,
+        holesOfBlock,
+        inputFieldsOfBlock,
+        pinsOfBlock,
+        symbolOfOperation), anyFinalBlock
+{
+
+}
+
+class sideMenu(private var listOfBlocks: List<anyFinalBlock>, private var allClasses: Array<FinalClasses> = FinalClasses.values())
+{
+    public fun getListOfBlocks() : List<anyFinalBlock>
+    {
+        return listOfBlocks;
+    }
+
+    public fun getAllClasses(): Array<FinalClasses>
+    {
+        return allClasses;
+    }
+
+    public fun setListOfBlocks(newListOfBlocks: List<anyFinalBlock>) : Unit
+    {
+        listOfBlocks = newListOfBlocks;
+    }
+
+    public fun createSideMenu()
+    {
+        for (i in allClasses)
+        {
+
+        }
+
+    }
 
 }

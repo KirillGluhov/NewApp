@@ -13,4 +13,12 @@
         <item name="android:layout_margin">10dp</item>
         <item name="android:theme">@style/MyTheme</item>
     </style>
+    <style name="Pin">
+        <item name="android:textSize">15sp</item>
+        <item name="fontFamily">monospace</item>
+        <item name="android:textColor">@color/green</item>
+        <item name="android:background">@drawable/pin</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:theme">@style/MyTheme</item>
+    </style>
 </resources>
