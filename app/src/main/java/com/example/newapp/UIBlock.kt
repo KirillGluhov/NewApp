@@ -121,12 +121,27 @@ open class Field(size: Size, coordinate: Coordinate, side: Sides) : ElementInBlo
 
 open class Pin(size: Size = Size(20, 20), coordinate: Coordinate, side: Sides) : ElementInBlock(size, coordinate, side)
 {
-    public fun makePin(context: Context)
+    private var button: Button? = null;
+
+    public fun makePin(context: Context) : Pin
     {
-        val newButton = Button(context);
-        newButton.layoutParams.height = (getElementSize().getHeight() * context.getResources().getDisplayMetrics().density).toInt();
-        newButton.layoutParams.width = (getElementSize().getWidth() * context.getResources().getDisplayMetrics().density).toInt();
-        newButton.setBackgroundResource(R.drawable.pin);
+        button = Button(context);
+        button?.layoutParams?.height = (getElementSize().getHeight() * context.getResources().getDisplayMetrics().density).toInt();
+        button?.layoutParams?.width = (getElementSize().getWidth() * context.getResources().getDisplayMetrics().density).toInt();
+        button?.setBackgroundResource(R.drawable.pin);
+        //Дополнить данными из Pin
+        return this;
+    }
+
+    public fun makeButton(context: Context) : Button
+    {
+        button = Button(context);
+        button?.layoutParams?.height = (getElementSize().getHeight() * context.getResources().getDisplayMetrics().density).toInt();
+        button?.layoutParams?.width = (getElementSize().getWidth() * context.getResources().getDisplayMetrics().density).toInt();
+        button?.setBackgroundResource(R.drawable.pin);
+        //Дополнить данными из Pin
+        return button as Button;
+
     }
 
 }
@@ -158,7 +173,8 @@ open class Pins(private var listOfPins: MutableList<Pin>)
 
     public fun addTwoPins(firstPin: Pin, secondPin: Pin)
     {
-
+        listOfPins.add(firstPin);
+        listOfPins.add(secondPin);
     }
 }
 
@@ -230,15 +246,45 @@ abstract class BlockUI(private var coordinateOfBlock: Coordinate,
         symbolOfOperation = newSymbolOfOperation;
     }
 
-    public fun makeBlock(context: Context)
+    public fun makeConstraintLayout(context: Context) : ConstraintLayout
     {
         val newBlock = ConstraintLayout(context);
         newBlock.layoutParams.height = (sizeOfBlock.getHeight() * context.getResources().getDisplayMetrics().density).toInt();
         newBlock.layoutParams.width = (sizeOfBlock.getWidth() * context.getResources().getDisplayMetrics().density).toInt();
 
-        //val newButton = Button(context);
-        //newBlock.addView(newButton);
+        if (pinsOfBlock.getListOfPins().size == 2)
+        {
+            newBlock.addView(pinsOfBlock.getListOfPins()[0].makeButton(context));
+            newBlock.addView(pinsOfBlock.getListOfPins()[1].makeButton(context))
+        }
+        else
+        {
 
+        }
 
+        //Дополнить поля BlockUi
+
+        return newBlock;
+    }
+
+    public fun makeBlock(context: Context) : BlockUI
+    {
+        val newBlock = ConstraintLayout(context);
+        newBlock.layoutParams.height = (sizeOfBlock.getHeight() * context.getResources().getDisplayMetrics().density).toInt();
+        newBlock.layoutParams.width = (sizeOfBlock.getWidth() * context.getResources().getDisplayMetrics().density).toInt();
+
+        if (pinsOfBlock.getListOfPins().size == 2)
+        {
+            newBlock.addView(pinsOfBlock.getListOfPins()[0].makeButton(context));
+            newBlock.addView(pinsOfBlock.getListOfPins()[1].makeButton(context))
+        }
+        else
+        {
+
+        }
+
+        //Дополнить поля BlockUi
+
+        return this;
     }
 }
