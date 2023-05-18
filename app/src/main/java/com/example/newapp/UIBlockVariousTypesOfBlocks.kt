@@ -2,7 +2,7 @@ package uiblockvarioustypesofblocks
 
 import uiblock.*
 
-abstract class Function(coordinateOfBlock: Coordinate,
+/*abstract class Function(coordinateOfBlock: Coordinate,
                         sizeOfBlock: Size,
                         holesOfBlock: Holes,
                         inputFieldsOfBlock: InputFields,
@@ -10,10 +10,7 @@ abstract class Function(coordinateOfBlock: Coordinate,
                         symbolOfOperation: String) :
     BlockUI(coordinateOfBlock,
         sizeOfBlock,
-        holesOfBlock,
-        inputFieldsOfBlock,
-        pinsOfBlock,
-        symbolOfOperation)
+        pinsOfBlock)
 {
 
 }
@@ -26,10 +23,7 @@ abstract class Operator(coordinateOfBlock: Coordinate,
                         symbolOfOperation: String) :
     BlockUI(coordinateOfBlock,
         sizeOfBlock,
-        holesOfBlock,
-        inputFieldsOfBlock,
-        pinsOfBlock,
-        symbolOfOperation)
+        pinsOfBlock)
 {
 
 }
@@ -244,21 +238,15 @@ class DirectAssignment(coordinateOfBlock: Coordinate,
 
 class Variable(coordinateOfBlock: Coordinate,
                sizeOfBlock: Size,
-               holesOfBlock: Holes,
-               inputFieldsOfBlock: InputFields,
-               pinsOfBlock: Pins,
-               symbolOfOperation: String) :
+               pinsOfBlock: Pins) :
     BlockUI(coordinateOfBlock,
         sizeOfBlock,
-        holesOfBlock,
-        inputFieldsOfBlock,
-        pinsOfBlock,
-        symbolOfOperation), anyFinalBlock
+        pinsOfBlock), anyFinalBlock
 {
 
 }
 
-class sideMenu(private var listOfBlocks: List<anyFinalBlock>, private var allClasses: Array<FinalClasses> = FinalClasses.values())
+/*class sideMenu(private var listOfBlocks: List<anyFinalBlock>, private var allClasses: Array<FinalClasses> = FinalClasses.values())
 {
     public fun getListOfBlocks() : List<anyFinalBlock>
     {
@@ -284,4 +272,6 @@ class sideMenu(private var listOfBlocks: List<anyFinalBlock>, private var allCla
 
     }
 
-}
+}*/
+
+ */

@@ -1,35 +1,45 @@
 package uiblock
 
-import androidx.constraintlayout.widget.ConstraintLayout;
+import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Bundle
+import android.view.ContextThemeWrapper
+import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.LinearLayout
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.setMargins
 import com.example.newapp.R
-import com.google.android.material.internal.ViewUtils.dpToPx
+
 
 class Size(
     private var height: Int,
     private var width: Int)
 {
-    public fun setHeight(newHeight: Int) : Unit
+    fun setHeight(newHeight: Int) : Unit
     {
         height = newHeight;
     }
 
-    public fun setWidth(newWidth: Int) : Unit
+    fun setWidth(newWidth: Int) : Unit
     {
         width = newWidth;
     }
 
-    public fun getHeight(): Int
+    fun getHeight(): Int
     {
         return height;
     }
 
-    public fun getWidth(): Int
+    fun getWidth(): Int
     {
         return width;
+    }
+
+    fun fromDpToPx(context: Context, dp: Int) : Int
+    {
+        return (dp * context.resources.displayMetrics.density).toInt();
     }
 }
 
@@ -38,28 +48,28 @@ class Coordinate(
     private var y: Int)
 {
 
-    public fun setX(newX: Int) : Unit
+    fun setX(newX: Int) : Unit
     {
         x = newX;
     }
 
-    public fun setY(newY: Int) : Unit
+    fun setY(newY: Int) : Unit
     {
         y = newY;
     }
 
-    public fun getX(): Int
+    fun getX(): Int
     {
         return x;
     }
 
-    public fun getY(): Int
+    fun getY(): Int
     {
         return y;
     }
 }
 
-enum class Sides
+enum class Side
 {
     Left,
     Right,
@@ -75,55 +85,64 @@ enum class Sides
 
 abstract class ElementInBlock(private var size: Size,
                               private var coordinate: Coordinate,
-                              private var side: Sides)
+                              private var side: Side)
 {
-    public fun setElementSize(newSize: Size)
+    fun setElementSize(newSize: Size)
     {
         size = newSize;
     }
 
-    public fun setElementCoordinate(newCoordinate: Coordinate)
+    fun setElementCoordinate(newCoordinate: Coordinate)
     {
         coordinate = newCoordinate;
     }
 
-    public fun setElementSide(newSide: Sides)
+    fun setElementSide(newSide: Side)
     {
         side = newSide;
     }
 
-    public fun getElementSize() : Size
+    fun getElementSize() : Size
     {
         return size;
     }
 
-    public fun getElementCoordinate() : Coordinate
+    fun getElementCoordinate() : Coordinate
     {
         return coordinate;
     }
 
-    public fun getElementSide() : Sides
+    fun getElementSide() : Side
     {
         return side;
     }
 
 }
 
-open class Hole(size: Size, coordinate: Coordinate, side: Sides) : ElementInBlock(size, coordinate, side)
+open class Hole(size: Size, coordinate: Coordinate, side: Side) : ElementInBlock(size, coordinate, side)
 {
 
 }
 
-open class Field(size: Size, coordinate: Coordinate, side: Sides) : ElementInBlock(size, coordinate, side)
+open class Field(size: Size, coordinate: Coordinate, side: Side) : ElementInBlock(size, coordinate, side)
 {
 
 }
 
-open class Pin(size: Size = Size(20, 20), coordinate: Coordinate, side: Sides) : ElementInBlock(size, coordinate, side)
+open class Pin(size: Size = Size(20, 20), coordinate: Coordinate, side: Side) : ElementInBlock(size, coordinate, side)
 {
-    private var button: Button? = null;
+    public fun makePin(context: Context) : Button
+    {
+        val newButton = Button(ContextThemeWrapper(context, R.style.Pin));
+        newButton.id = Button.generateViewId();
 
-    public fun makePin(context: Context) : Pin
+        newButton.width = getElementSize().fromDpToPx(context, getElementSize().getWidth());
+        newButton.height = getElementSize().fromDpToPx(context, getElementSize().getHeight());
+
+        return newButton;
+    }
+
+    /*public fun makePin(context: Context) : Pin
     {
         button = Button(context);
         button?.layoutParams?.height = (getElementSize().getHeight() * context.getResources().getDisplayMetrics().density).toInt();
@@ -142,7 +161,7 @@ open class Pin(size: Size = Size(20, 20), coordinate: Coordinate, side: Sides) :
         //Дополнить данными из Pin
         return button as Button;
 
-    }
+    }*/
 
 }
 
@@ -179,14 +198,14 @@ open class Pins(private var listOfPins: MutableList<Pin>)
 }
 
 
-abstract class BlockUI(private var coordinateOfBlock: Coordinate,
-                       private var sizeOfBlock: Size,
-                       private var holesOfBlock: Holes,
-                       private var inputFieldsOfBlock: InputFields,
-                       private var pinsOfBlock: Pins,
-                       private var symbolOfOperation: String)
+class BlockUI(private var coordinateOfBlock: Coordinate = Coordinate(0, 0),
+                       private var sizeOfBlock: Size = Size(130, 180),
+                       private var pinsOfBlock: Pins = Pins(mutableListOf(Pin(Size(20, 20),
+                           Coordinate(0, 0), Side.Up),
+                           Pin(Size(20, 20),
+                               Coordinate(0, 0), Side.Down))))
 {
-    public fun getCoordinateOfBlock() : Coordinate
+    public fun getCoordinateOfBlock() : Coordinate // не забыть вернуть abstract у класса
     {
         return coordinateOfBlock;
     }
@@ -196,24 +215,9 @@ abstract class BlockUI(private var coordinateOfBlock: Coordinate,
         return sizeOfBlock;
     }
 
-    public fun getHolesOfBlock() : Holes
-    {
-        return holesOfBlock;
-    }
-
-    public fun getInputFieldsOfBlock() : InputFields
-    {
-        return inputFieldsOfBlock;
-    }
-
     public fun getPinsOfBlock() : Pins
     {
         return pinsOfBlock;
-    }
-
-    public fun getSymbolOfOperation() : String
-    {
-        return symbolOfOperation;
     }
 
     public fun setCoordinateOfBlock(newCoordinateOfBlock: Coordinate) : Unit
@@ -226,27 +230,184 @@ abstract class BlockUI(private var coordinateOfBlock: Coordinate,
         sizeOfBlock = newSizeOfBlock;
     }
 
-    public fun setHolesOfBlock(newHolesOfBlock: Holes) : Unit
-    {
-        holesOfBlock = newHolesOfBlock;
-    }
-
-    public fun setInputFieldsOfBlock(newInputFieldsOfBlock: InputFields) : Unit
-    {
-        inputFieldsOfBlock = newInputFieldsOfBlock;
-    }
-
     public fun setPinsOfBlock(newPinsOfBlock: Pins) : Unit
     {
         pinsOfBlock = newPinsOfBlock;
     }
 
-    public fun setSymbolOfOperation(newSymbolOfOperation: String) : Unit
+    public fun makeUsualBlock(context: Context) : ConstraintLayout
     {
-        symbolOfOperation = newSymbolOfOperation;
+        val newBlock = ConstraintLayout(context);
+
+        newBlock.id = ConstraintLayout.generateViewId();
+        newBlock.setBackgroundResource(R.drawable.empty_element);
+
+        val layoutParameters = MarginLayoutParams(sizeOfBlock.fromDpToPx(context, sizeOfBlock.getWidth()),
+            sizeOfBlock.fromDpToPx(context, sizeOfBlock.getHeight()));
+
+        layoutParameters.setMargins(
+            (10 * context.resources.displayMetrics.density).toInt(),
+            (10 * context.resources.displayMetrics.density).toInt(),
+            (10 * context.resources.displayMetrics.density).toInt(),
+            (10 * context.resources.displayMetrics.density).toInt());
+        newBlock.layoutParams = layoutParameters;
+
+        if (getPinsOfBlock().getListOfPins().isNotEmpty())
+        {
+            val firstPin = getPinsOfBlock().getListOfPins()[0];
+            val secondPin = getPinsOfBlock().getListOfPins()[1];
+            val firstButton = firstPin.makePin(context);
+            val secondButton = secondPin.makePin(context);
+
+            val set = ConstraintSet();
+            set.clone(newBlock);
+
+            if (firstPin.getElementSide() == Side.Up)
+            {
+                val layoutParams = ConstraintLayout.LayoutParams(
+                    (firstPin.getElementSize().getWidth() *
+                            context.resources.displayMetrics.density).toInt(),
+                    (firstPin.getElementSize().getHeight() *
+                            context.resources.displayMetrics.density).toInt()
+                )
+
+                layoutParams.topMargin = (-20 * context.resources.displayMetrics.density).toInt();
+
+                firstButton.layoutParams = layoutParams;
+
+                newBlock.addView(firstButton);
+
+                set.connect(firstButton.id, ConstraintSet.END, newBlock.id, ConstraintSet.END);
+                set.connect(firstButton.id, ConstraintSet.START, newBlock.id, ConstraintSet.START);
+
+                set.applyTo(newBlock);
+            }
+            else
+            {
+                val layoutParams = ConstraintLayout.LayoutParams(
+                    (secondPin.getElementSize().getWidth() *
+                            context.resources.displayMetrics.density).toInt(),
+                    (secondPin.getElementSize().getHeight() *
+                            context.resources.displayMetrics.density).toInt()
+                )
+
+                layoutParams.topMargin = (-20 * context.resources.displayMetrics.density).toInt();
+
+                secondButton.layoutParams = layoutParams;
+
+                newBlock.addView(secondButton);
+
+                set.connect(secondButton.id, ConstraintSet.END, newBlock.id, ConstraintSet.END);
+                set.connect(secondButton.id, ConstraintSet.START, newBlock.id, ConstraintSet.START);
+
+                set.applyTo(newBlock);
+
+            }
+        }
+
+        return newBlock;
+
+
+        /*val newBlock = ConstraintLayout(context);
+        val layoutParameters = MarginLayoutParams(sizeOfBlock.fromDpToPx(context, sizeOfBlock.getWidth()),
+            sizeOfBlock.fromDpToPx(context, sizeOfBlock.getHeight()));
+
+        layoutParameters.setMargins(
+            (10 * context.resources.displayMetrics.density).toInt(),
+            (10 * context.resources.displayMetrics.density).toInt(),
+            (10 * context.resources.displayMetrics.density).toInt(),
+            (10 * context.resources.displayMetrics.density).toInt());
+        newBlock.layoutParams = layoutParameters;
+
+        newBlock.id = ConstraintLayout.generateViewId();
+
+        newBlock.setBackgroundResource(R.drawable.empty_element);
+
+        newBlock.layoutParams.height = sizeOfBlock.fromDpToPx(context, sizeOfBlock.getHeight());
+        newBlock.layoutParams.width = sizeOfBlock.fromDpToPx(context, sizeOfBlock.getWidth());
+
+        if (pinsOfBlock.getListOfPins().size == 2)
+        {
+            val temporaryList: List<Pin> = pinsOfBlock.getListOfPins();
+            val temporaryButtonFirst = temporaryList[0].makePin(context);
+            val temporaryButtonSecond = temporaryList[1].makePin(context);
+
+            val set = ConstraintSet();
+
+            val newSubBlock = ConstraintLayout(context);
+            newSubBlock.id = ConstraintLayout.generateViewId();
+
+            if (newSubBlock.layoutParams == null) {
+                newSubBlock.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            }
+
+            val temporaryWidth = newBlock.layoutParams.width;
+            val temporaryHeight = newBlock.layoutParams.height
+
+            newSubBlock.layoutParams.width = temporaryWidth;
+            newSubBlock.layoutParams.height = temporaryHeight -
+                    (20 * context.resources.displayMetrics.density).toInt();
+            newSubBlock.setBackgroundResource(R.drawable.block_border);
+
+            set.connect(newSubBlock.id, ConstraintSet.BOTTOM, newBlock.id, ConstraintSet.BOTTOM);
+            set.connect(newSubBlock.id, ConstraintSet.LEFT, newBlock.id, ConstraintSet.LEFT);
+            set.connect(newSubBlock.id, ConstraintSet.RIGHT, newBlock.id, ConstraintSet.RIGHT);
+
+            newBlock.addView(newSubBlock);
+
+            if (pinsOfBlock.getListOfPins()[0].getElementSide() == Side.Up)
+            {
+                set.connect(temporaryButtonFirst.id, ConstraintSet.END, newBlock.id, ConstraintSet.END);
+                set.connect(temporaryButtonFirst.id, ConstraintSet.START, newBlock.id, ConstraintSet.START);
+
+                newBlock.addView(temporaryButtonFirst);
+
+                val layoutParametrs = temporaryButtonFirst.layoutParams as ConstraintLayout.LayoutParams;
+                layoutParametrs.setMargins(0, (-20 * context.resources.displayMetrics.density).toInt(), 0, 0);
+                temporaryButtonFirst.layoutParams = layoutParametrs;
+
+                        set.connect(temporaryButtonSecond.id, ConstraintSet.END, newSubBlock.id, ConstraintSet.END);
+                set.connect(temporaryButtonSecond.id, ConstraintSet.START, newSubBlock.id, ConstraintSet.START);
+                set.connect(temporaryButtonSecond.id, ConstraintSet.BOTTOM, newSubBlock.id, ConstraintSet.BOTTOM);
+                set.connect(temporaryButtonSecond.id, ConstraintSet.TOP, newSubBlock.id, ConstraintSet.TOP);
+
+                set.setVerticalBias(temporaryButtonSecond.id, 1.11F);
+
+                newSubBlock.addView(temporaryButtonSecond);
+            }
+            else
+            {
+                set.connect(temporaryButtonSecond.id, ConstraintSet.END, newBlock.id, ConstraintSet.END);
+                set.connect(temporaryButtonSecond.id, ConstraintSet.START, newBlock.id, ConstraintSet.START);
+
+                newBlock.addView(temporaryButtonSecond);
+
+                val layoutParametrs = temporaryButtonSecond.layoutParams as ConstraintLayout.LayoutParams;
+                layoutParametrs.setMargins(0, (-20 * context.resources.displayMetrics.density).toInt(), 0, 0);
+                temporaryButtonSecond.layoutParams = layoutParametrs;
+
+                set.connect(temporaryButtonFirst.id, ConstraintSet.END, newSubBlock.id, ConstraintSet.END);
+                set.connect(temporaryButtonFirst.id, ConstraintSet.START, newSubBlock.id, ConstraintSet.START);
+                set.connect(temporaryButtonFirst.id, ConstraintSet.BOTTOM, newSubBlock.id, ConstraintSet.BOTTOM);
+                set.connect(temporaryButtonFirst.id, ConstraintSet.TOP, newSubBlock.id, ConstraintSet.TOP);
+
+                set.setVerticalBias(temporaryButtonFirst.id, 1.11F);
+
+                newSubBlock.addView(temporaryButtonFirst);
+            }
+        }
+
+
+        return newBlock;*/
+
+
+
     }
 
-    public fun makeConstraintLayout(context: Context) : ConstraintLayout
+    /*public fun makeConstraintLayout(context: Context) : ConstraintLayout
     {
         val newBlock = ConstraintLayout(context);
         newBlock.layoutParams.height = (sizeOfBlock.getHeight() * context.getResources().getDisplayMetrics().density).toInt();
@@ -286,5 +447,5 @@ abstract class BlockUI(private var coordinateOfBlock: Coordinate,
         //Дополнить поля BlockUi
 
         return this;
-    }
+    }*/
 }
