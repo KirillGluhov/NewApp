@@ -1,15 +1,11 @@
 package uiblock
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.view.ContextThemeWrapper
-import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
-import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.setMargins
+import androidx.core.view.marginLeft
+import androidx.core.view.marginTop
 import com.example.newapp.R
 
 
@@ -133,11 +129,9 @@ open class Pin(size: Size = Size(20, 20), coordinate: Coordinate, side: Side) : 
 {
     public fun makePin(context: Context) : Button
     {
-        val newButton = Button(ContextThemeWrapper(context, R.style.Pin));
+        val newButton = Button(context);
+        newButton.setBackgroundResource(R.drawable.pin);
         newButton.id = Button.generateViewId();
-
-        newButton.width = getElementSize().fromDpToPx(context, getElementSize().getWidth());
-        newButton.height = getElementSize().fromDpToPx(context, getElementSize().getHeight());
 
         return newButton;
     }
@@ -235,12 +229,84 @@ class BlockUI(private var coordinateOfBlock: Coordinate = Coordinate(0, 0),
         pinsOfBlock = newPinsOfBlock;
     }
 
-    public fun makeUsualBlock(context: Context) : ConstraintLayout
+    public fun makeDefaultBlock(context: Context) : ConstraintLayout
+    {
+        val parentLayout = ConstraintLayout(context).apply {
+            id = ConstraintLayout.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(
+                (sizeOfBlock.getWidth() * context.resources.displayMetrics.density).toInt(),
+                (sizeOfBlock.getHeight() * context.resources.displayMetrics.density).toInt()
+            )
+            setBackgroundResource(R.drawable.empty_element)
+        }
+
+        val buttonUp = Button(context).apply {
+            id = Button.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(
+                (20 * context.resources.displayMetrics.density).toInt(),
+                (20 * context.resources.displayMetrics.density).toInt()
+            ).apply {
+                topMargin = (-20 * context.resources.displayMetrics.density).toInt()
+                startToStart = ConstraintSet.PARENT_ID
+                endToEnd = ConstraintSet.PARENT_ID
+            }
+            setBackgroundResource(R.drawable.pin)
+        }
+
+        val childLayout = ConstraintLayout(context).apply {
+            id = ConstraintLayout.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(
+                (sizeOfBlock.getWidth() * context.resources.displayMetrics.density).toInt(),
+                ((sizeOfBlock.getHeight() - 20) * context.resources.displayMetrics.density).toInt()
+            ).apply {
+                bottomToBottom = ConstraintSet.PARENT_ID
+                startToStart = ConstraintSet.PARENT_ID
+                endToEnd = ConstraintSet.PARENT_ID
+            }
+            setBackgroundResource(R.drawable.block_border)
+        }
+
+        val buttonDown = Button(context).apply {
+            id = Button.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(
+                (20 * context.resources.displayMetrics.density).toInt(),
+                (20 * context.resources.displayMetrics.density).toInt()
+            ).apply {
+                topToTop = ConstraintSet.PARENT_ID
+                bottomToBottom = ConstraintSet.PARENT_ID
+                startToStart = ConstraintSet.PARENT_ID
+                endToEnd = ConstraintSet.PARENT_ID
+                verticalBias = 1.0f
+            }
+            setBackgroundResource(R.drawable.pin)
+        }
+
+        parentLayout.addView(buttonUp)
+        childLayout.addView(buttonDown)
+        parentLayout.addView(childLayout)
+
+        val constraintSet = ConstraintSet().apply {
+            clone(parentLayout)
+            connect(buttonUp.id, ConstraintSet.END, parentLayout.id, ConstraintSet.END)
+            connect(buttonUp.id, ConstraintSet.START, parentLayout.id, ConstraintSet.START)
+
+            connect(buttonDown.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP)
+            connect(buttonDown.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM)
+            connect(buttonDown.id, ConstraintSet.START, childLayout.id, ConstraintSet.START)
+            connect(buttonDown.id, ConstraintSet.END, childLayout.id, ConstraintSet.END)
+        }
+
+        constraintSet.applyTo(parentLayout)
+
+        return parentLayout;
+    }
+
+    /*public fun makeUsualBlock(context: Context) : ConstraintLayout
     {
         val newBlock = ConstraintLayout(context);
 
         newBlock.id = ConstraintLayout.generateViewId();
-        newBlock.setBackgroundResource(R.drawable.empty_element);
+        newBlock.setBackgroundResource(R.drawable.block_border);
 
         val layoutParameters = MarginLayoutParams(sizeOfBlock.fromDpToPx(context, sizeOfBlock.getWidth()),
             sizeOfBlock.fromDpToPx(context, sizeOfBlock.getHeight()));
@@ -273,9 +339,13 @@ class BlockUI(private var coordinateOfBlock: Coordinate = Coordinate(0, 0),
 
                 layoutParams.topMargin = (-20 * context.resources.displayMetrics.density).toInt();
 
-                firstButton.layoutParams = layoutParams;
-
                 newBlock.addView(firstButton);
+
+                layoutParams.width = (firstPin.getElementSize().getWidth() * context.resources.displayMetrics.density).toInt();
+                layoutParams.height = (firstPin.getElementSize().getHeight() * context.resources.displayMetrics.density).toInt();
+
+
+                firstButton.layoutParams = layoutParams;
 
                 set.connect(firstButton.id, ConstraintSet.END, newBlock.id, ConstraintSet.END);
                 set.connect(firstButton.id, ConstraintSet.START, newBlock.id, ConstraintSet.START);
@@ -293,9 +363,14 @@ class BlockUI(private var coordinateOfBlock: Coordinate = Coordinate(0, 0),
 
                 layoutParams.topMargin = (-20 * context.resources.displayMetrics.density).toInt();
 
-                secondButton.layoutParams = layoutParams;
+
 
                 newBlock.addView(secondButton);
+
+                layoutParams.width = (secondPin.getElementSize().getWidth() * context.resources.displayMetrics.density).toInt();
+                layoutParams.height = (secondPin.getElementSize().getHeight() * context.resources.displayMetrics.density).toInt();
+
+                secondButton.layoutParams = layoutParams;
 
                 set.connect(secondButton.id, ConstraintSet.END, newBlock.id, ConstraintSet.END);
                 set.connect(secondButton.id, ConstraintSet.START, newBlock.id, ConstraintSet.START);
@@ -405,7 +480,7 @@ class BlockUI(private var coordinateOfBlock: Coordinate = Coordinate(0, 0),
 
 
 
-    }
+    }*/
 
     /*public fun makeConstraintLayout(context: Context) : ConstraintLayout
     {
