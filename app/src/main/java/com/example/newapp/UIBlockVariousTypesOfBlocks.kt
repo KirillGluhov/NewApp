@@ -1,7 +1,10 @@
 package uiblockvarioustypesofblocks
 
+import android.content.ClipData
 import android.content.Context
+import android.graphics.Rect
 import android.text.InputType
+import android.view.DragEvent
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -57,6 +60,41 @@ abstract class BinaryOperator(coordinateOfBlock: Coordinate = Coordinate(0,0),
                 (getSizeOfBlock().getWidth() * context.resources.displayMetrics.density).toInt(),
                 (getSizeOfBlock().getHeight() * context.resources.displayMetrics.density).toInt()
             )
+            setOnClickListener{v->
+                val clipData = ClipData.newPlainText("", "")
+                val shadowBuilder = View.DragShadowBuilder(v)
+
+                v.startDragAndDrop(clipData, shadowBuilder, v, 0)
+
+                true
+            }
+            setOnDragListener{v, event->
+                when(event.action)
+                {
+                    DragEvent.ACTION_DRAG_STARTED -> {
+                        // Действия, выполняемые при начале перетаскивания
+                        true
+                    }
+                    DragEvent.ACTION_DRAG_ENTERED -> {
+                        // Действия, выполняемые при входе в область перетаскивания
+                        true
+                    }
+                    DragEvent.ACTION_DRAG_EXITED -> {
+                        // Действия, выполняемые при выходе из области перетаскивания
+                        true
+                    }
+                    DragEvent.ACTION_DROP -> {
+                        // Действия, выполняемые при отпускании элемента
+                        true
+                    }
+                    DragEvent.ACTION_DRAG_ENDED -> {
+                        // Действия, выполняемые при окончании перетаскивания
+                        true
+                    }
+                    else -> false
+                }
+
+            }
             setBackgroundResource(R.drawable.empty_element)
         }
 
@@ -348,6 +386,41 @@ class Initialization(coordinateOfBlock: Coordinate = Coordinate(0,0),
                 (getSizeOfBlock().getWidth() * context.resources.displayMetrics.density).toInt(),
                 (getSizeOfBlock().getHeight() * context.resources.displayMetrics.density).toInt()
             )
+            setOnClickListener{v->
+                val clipData = ClipData.newPlainText("", "")
+                val shadowBuilder = View.DragShadowBuilder(v)
+
+                v.startDragAndDrop(clipData, shadowBuilder, v, 0)
+
+                true
+            }
+            setOnDragListener{v, event->
+                when(event.action)
+                {
+                    DragEvent.ACTION_DRAG_STARTED -> {
+                        // Действия, выполняемые при начале перетаскивания
+                        true
+                    }
+                    DragEvent.ACTION_DRAG_ENTERED -> {
+                        // Действия, выполняемые при входе в область перетаскивания
+                        true
+                    }
+                    DragEvent.ACTION_DRAG_EXITED -> {
+                        // Действия, выполняемые при выходе из области перетаскивания
+                        true
+                    }
+                    DragEvent.ACTION_DROP -> {
+                        // Действия, выполняемые при отпускании элемента
+                        true
+                    }
+                    DragEvent.ACTION_DRAG_ENDED -> {
+                        // Действия, выполняемые при окончании перетаскивания
+                        true
+                    }
+                    else -> false
+                }
+
+            }
             setBackgroundResource(R.drawable.empty_element)
         }
 
@@ -506,6 +579,41 @@ class Variable(coordinateOfBlock: Coordinate = Coordinate(0, 0),
                 (getSizeOfBlock().getWidth() * context.resources.displayMetrics.density).toInt(),
                 (getSizeOfBlock().getHeight() * context.resources.displayMetrics.density).toInt()
             )
+            setOnClickListener{v->
+                val clipData = ClipData.newPlainText("", "")
+                val shadowBuilder = View.DragShadowBuilder(v)
+
+                v.startDragAndDrop(clipData, shadowBuilder, v, 0)
+
+                true
+            }
+            setOnDragListener{v, event->
+                when(event.action)
+                {
+                    DragEvent.ACTION_DRAG_STARTED -> {
+                        // Действия, выполняемые при начале перетаскивания
+                        true
+                    }
+                    DragEvent.ACTION_DRAG_ENTERED -> {
+                        // Действия, выполняемые при входе в область перетаскивания
+                        true
+                    }
+                    DragEvent.ACTION_DRAG_EXITED -> {
+                        // Действия, выполняемые при выходе из области перетаскивания
+                        true
+                    }
+                    DragEvent.ACTION_DROP -> {
+                        // Действия, выполняемые при отпускании элемента
+                        true
+                    }
+                    DragEvent.ACTION_DRAG_ENDED -> {
+                        // Действия, выполняемые при окончании перетаскивания
+                        true
+                    }
+                    else -> false
+                }
+
+            }
             setBackgroundResource(R.drawable.empty_element)
         }
 
