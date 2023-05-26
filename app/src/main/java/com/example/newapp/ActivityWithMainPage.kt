@@ -33,8 +33,12 @@ class MainActivity : AppCompatActivity() {
         // Устанавливаем слушатель Drag and Drop на контейнеры блоков
         val block1Content = findViewById<LinearLayout>(R.id.block1_content)
         val block2Content = findViewById<LinearLayout>(R.id.block2_content)
-        block1Content.setOnDragListener { _, event -> onDrag(event) }
-        block2Content.setOnDragListener { _, event -> onDrag(event) }
+        block1Content.setOnDragListener(DragListener())
+        block2Content.setOnDragListener(DragListener())
+
+        // Инициализируем видимую связь
+        connectionLine = findViewById(R.id.connection_line)
+        connectionLine?.visibility = View.INVISIBLE
     }
 
     private fun startDrag(view: View): Boolean {
@@ -48,52 +52,53 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun onDrag(event: DragEvent): Boolean {
-        val container = event.localState as? ViewGroup
-        val draggedView = event.localState as? View
+    private inner class DragListener : View.OnDragListener {
+        override fun onDrag(v: View, event: DragEvent): Boolean {
+            val container = v as? ViewGroup
 
-        when (event.action) {
-            DragEvent.ACTION_DRAG_STARTED -> {
-                if (event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+            when (event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> {
+                    if (event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+                        container?.setBackgroundColor(Color.GREEN)
+                        container?.invalidate()
+                        return true
+                    }
+                    return false
+                }
+
+                DragEvent.ACTION_DRAG_ENTERED -> {
+                    container?.setBackgroundColor(Color.BLUE)
+                    container?.invalidate()
+                    return true
+                }
+
+                DragEvent.ACTION_DRAG_EXITED -> {
                     container?.setBackgroundColor(Color.GREEN)
                     container?.invalidate()
                     return true
                 }
-                return false
+
+                DragEvent.ACTION_DROP -> {
+                    val text = event.clipData.getItemAt(0).text
+                    container?.setBackgroundColor(Color.GREEN)
+                    container?.invalidate()
+
+                    // Создаем новый блок, который будет добавлен внутрь текущего контейнера
+                    val newBlock = createBlock(text.toString())
+
+                    // Добавляем новый блок в контейнер
+                    container?.addView(newBlock)
+                    return true
+                }
+
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    container?.setBackgroundColor(Color.WHITE)
+                    container?.invalidate()
+                    return true
+                }
+
+                else -> return false
             }
-
-            DragEvent.ACTION_DRAG_ENTERED -> {
-                container?.setBackgroundColor(Color.BLUE)
-                container?.invalidate()
-                return true
-            }
-
-            DragEvent.ACTION_DRAG_EXITED -> {
-                container?.setBackgroundColor(Color.GREEN)
-                container?.invalidate()
-                return true
-            }
-
-            DragEvent.ACTION_DROP -> {
-                val text = event.clipData.getItemAt(0).text
-                container?.setBackgroundColor(Color.GREEN)
-                container?.invalidate()
-
-                // Создаем новый блок, который будет добавлен внутрь текущего контейнера
-                val newBlock = createBlock(text.toString())
-
-                // Добавляем новый блок в контейнер
-                container?.addView(newBlock)
-                return true
-            }
-
-            DragEvent.ACTION_DRAG_ENDED -> {
-                container?.setBackgroundColor(Color.WHITE)
-                container?.invalidate()
-                return true
-            }
-
-            else -> return false
         }
     }
 
@@ -118,7 +123,6 @@ class MainActivity : AppCompatActivity() {
         block.addView(textView)
         return block
     }
-}
 */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
