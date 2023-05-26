@@ -5,11 +5,10 @@ import android.view.View
 import android.widget.Button
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.marginLeft
-import androidx.core.view.marginTop
 import com.example.newapp.R
 
-
+var numberOfClickedButtons = 0;
+val allTemporaryBlocks = mutableListOf<ConstraintLayout>();
 class Size(
     private var height: Int,
     private var width: Int)
@@ -67,8 +66,11 @@ class Coordinate(
 }
 
 open class BlockUI(private var coordinateOfBlock: Coordinate = Coordinate(0, 0),
-                       private var sizeOfBlock: Size = Size(130, 180),
-                       private var pinsOfBlock: Int = 2)
+                   private var sizeOfBlock: Size = Size(130, 180),
+                   private var pinsOfBlock: Int = 2, private var isClicked: Boolean = false,
+                   private var blockAsBlock: ConstraintLayout? = null,
+                   private var isButtonPressedUp: Boolean = false,
+                   private var isButtonPressedDown: Boolean = false)
 {
     public fun getCoordinateOfBlock() : Coordinate
     {
@@ -100,7 +102,37 @@ open class BlockUI(private var coordinateOfBlock: Coordinate = Coordinate(0, 0),
         pinsOfBlock = newPinsOfBlock;
     }
 
-    public open fun makeBlock(context: Context) : ConstraintLayout
+    public fun setIsClicked(newIsClicked: Boolean)
+    {
+        isClicked = newIsClicked;
+    }
+
+    public fun getIsClicked() : Boolean
+    {
+        return isClicked;
+    }
+
+    public fun getIsButtonPressedDown() : Boolean
+    {
+        return isButtonPressedDown
+    }
+
+    public fun getIsButtonPressedUp() : Boolean
+    {
+        return isButtonPressedUp
+    }
+
+    public fun setIsButtonPressedDown(newButtonPressedDown: Boolean)
+    {
+        isButtonPressedDown = newButtonPressedDown;
+    }
+
+    public fun setIsButtonPressedUp(newButtonPressedUp: Boolean)
+    {
+        isButtonPressedUp = newButtonPressedUp;
+    }
+
+    public open fun makeBlockAsBlock(context: Context)
     {
         val parentLayout = ConstraintLayout(context).apply {
             id = View.generateViewId()
@@ -139,6 +171,34 @@ open class BlockUI(private var coordinateOfBlock: Coordinate = Coordinate(0, 0),
                     topMargin = (-20 * context.resources.displayMetrics.density).toInt()
                     startToStart = ConstraintSet.PARENT_ID
                     endToEnd = ConstraintSet.PARENT_ID
+                }
+                setOnClickListener{
+                    if (isButtonPressedUp) {
+                        setBackgroundResource(R.drawable.pin)
+                        numberOfClickedButtons -= 1;
+                        isClicked = false;
+                        isButtonPressedUp = false;
+                        if (allTemporaryBlocks.size > 0)
+                        {
+                            for (i in allTemporaryBlocks.indices)
+                            {
+                                if (allTemporaryBlocks[i] == blockAsBlock)
+                                {
+                                    allTemporaryBlocks.removeAt(i);
+                                }
+                            }
+                        }
+                    } else if (numberOfClickedButtons < 2){
+                        setBackgroundResource(R.drawable.square);
+                        numberOfClickedButtons += 1;
+                        isClicked = true;
+                        isButtonPressedUp = true;
+                        if (blockAsBlock != null)
+                        {
+                            allTemporaryBlocks.add(blockAsBlock!!);
+                        }
+
+                    }
                 }
                 setBackgroundResource(R.drawable.pin)
             }
@@ -188,6 +248,16 @@ open class BlockUI(private var coordinateOfBlock: Coordinate = Coordinate(0, 0),
             constraintSet.applyTo(parentLayout)
         }
 
-        return parentLayout;
+        blockAsBlock = parentLayout;
+    }
+
+    public fun setBlockAsBlock(newBlockAsBlock: ConstraintLayout)
+    {
+        blockAsBlock = newBlockAsBlock;
+    }
+
+    public fun getBlockAsBlock() : ConstraintLayout?
+    {
+        return blockAsBlock
     }
 }

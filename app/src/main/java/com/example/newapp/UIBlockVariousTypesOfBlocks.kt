@@ -1,10 +1,7 @@
 package uiblockvarioustypesofblocks
 
-import android.content.ClipData
 import android.content.Context
-import android.graphics.Rect
 import android.text.InputType
-import android.view.DragEvent
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -14,23 +11,21 @@ import androidx.constraintlayout.widget.ConstraintSet
 import com.example.newapp.R
 import uiblock.*
 
-abstract class Function(coordinateOfBlock: Coordinate,
-                        sizeOfBlock: Size,
-                        pinsOfBlock: Int) :
-    BlockUI(coordinateOfBlock,
-        sizeOfBlock,
-        pinsOfBlock)
-{
-
-}
-
 abstract class Operator(coordinateOfBlock: Coordinate,
                         sizeOfBlock: Size,
                         pinsOfBlock: Int,
-                        symbolOfOperation: String) :
+                        isClicked: Boolean,
+                        symbolOfOperation: String,
+                        blockAsBlock: ConstraintLayout?,
+                        isButtonPressedUp: Boolean,
+                        isButtonPressedDown: Boolean) :
     BlockUI(coordinateOfBlock,
         sizeOfBlock,
-        pinsOfBlock)
+        pinsOfBlock,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown)
 {
     private var symbolOfOperation: String = symbolOfOperation
 
@@ -46,54 +41,29 @@ abstract class Operator(coordinateOfBlock: Coordinate,
 abstract class BinaryOperator(coordinateOfBlock: Coordinate = Coordinate(0,0),
                               sizeOfBlock: Size = Size(130, 180),
                               pinsOfBlock: Int = 2,
-                              symbolOfOperation: String = "!") :
+                              symbolOfOperation: String = "!",
+                              isClicked: Boolean = false,
+                              blockAsBlock: ConstraintLayout?,
+                              isButtonPressedUp: Boolean = false,
+                              isButtonPressedDown: Boolean = false ) :
     Operator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        isClicked,
+        symbolOfOperation,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown)
 {
-    override fun makeBlock(context: Context) : ConstraintLayout //вернуть abstract class
+    override fun makeBlockAsBlock(context: Context) //вернуть abstract class
     {
         val parentLayout = ConstraintLayout(context).apply {
             id = View.generateViewId()
             layoutParams = ConstraintLayout.LayoutParams(
                 (getSizeOfBlock().getWidth() * context.resources.displayMetrics.density).toInt(),
                 (getSizeOfBlock().getHeight() * context.resources.displayMetrics.density).toInt()
-            )
-            setOnClickListener{v->
-                val clipData = ClipData.newPlainText("", "")
-                val shadowBuilder = View.DragShadowBuilder(v)
-
-                v.startDragAndDrop(clipData, shadowBuilder, v, 0)
-
-                true
-            }
-            setOnDragListener{v, event->
-                when(event.action)
-                {
-                    DragEvent.ACTION_DRAG_STARTED -> {
-                        // Действия, выполняемые при начале перетаскивания
-                        true
-                    }
-                    DragEvent.ACTION_DRAG_ENTERED -> {
-                        // Действия, выполняемые при входе в область перетаскивания
-                        true
-                    }
-                    DragEvent.ACTION_DRAG_EXITED -> {
-                        // Действия, выполняемые при выходе из области перетаскивания
-                        true
-                    }
-                    DragEvent.ACTION_DROP -> {
-                        // Действия, выполняемые при отпускании элемента
-                        true
-                    }
-                    DragEvent.ACTION_DRAG_ENDED -> {
-                        // Действия, выполняемые при окончании перетаскивания
-                        true
-                    }
-                    else -> false
-                }
-
+            ).apply {
+                topMargin = (-20 * context.resources.displayMetrics.density).toInt();
             }
             setBackgroundResource(R.drawable.empty_element)
         }
@@ -113,15 +83,19 @@ abstract class BinaryOperator(coordinateOfBlock: Coordinate = Coordinate(0,0),
 
         ///////////////////////////////////////////////
 
-        val microFirstBlock = BlockUI(Coordinate(0,0),
+        val microFirst = BlockUI(Coordinate(0,0),
             Size((getSizeOfBlock().getHeight()*0.4).toInt(),
                 (getSizeOfBlock().getWidth()*0.4).toInt() ),
-            2).makeBlock(context);
+            2, false);
+        microFirst.makeBlockAsBlock(context);
+        val microFirstBlock = microFirst.getBlockAsBlock();
 
-        val microSecondBlock = BlockUI(Coordinate(0,0),
+        val microSecond = BlockUI(Coordinate(0,0),
             Size((getSizeOfBlock().getHeight()*0.4).toInt(),
                 (getSizeOfBlock().getWidth()*0.4).toInt() ),
-            2).makeBlock(context);
+            2, false);
+        microSecond.makeBlockAsBlock(context);
+        val microSecondBlock = microSecond.getBlockAsBlock();
 
         val textView = TextView(context).apply{
             id = View.generateViewId();
@@ -142,6 +116,7 @@ abstract class BinaryOperator(coordinateOfBlock: Coordinate = Coordinate(0,0),
 
         if (getPinsOfBlock() == 2)
         {
+            var isButtonPressedUp = false;
             val buttonUp = Button(context).apply {
                 id = View.generateViewId()
                 layoutParams = ConstraintLayout.LayoutParams(
@@ -152,9 +127,37 @@ abstract class BinaryOperator(coordinateOfBlock: Coordinate = Coordinate(0,0),
                     startToStart = ConstraintSet.PARENT_ID
                     endToEnd = ConstraintSet.PARENT_ID
                 }
+                setOnClickListener{
+                    if (isButtonPressedUp) {
+                        setBackgroundResource(R.drawable.pin)
+                        numberOfClickedButtons -= 1;
+                        isButtonPressedUp = false;
+                        setIsClicked(false);
+                        if (allTemporaryBlocks.size > 0)
+                        {
+                            for (i in allTemporaryBlocks.indices)
+                            {
+                                if (allTemporaryBlocks[i] == getBlockAsBlock())
+                                {
+                                    allTemporaryBlocks.removeAt(i);
+                                }
+                            }
+                        }
+                    } else if (numberOfClickedButtons < 2) {
+                        setBackgroundResource(R.drawable.square);
+                        numberOfClickedButtons += 1;
+                        isButtonPressedUp = true;
+                        setIsClicked(true);
+                        if (getBlockAsBlock() != null)
+                        {
+                            allTemporaryBlocks.add(getBlockAsBlock()!!);
+                        }
+                    }
+                }
                 setBackgroundResource(R.drawable.pin)
             }
 
+            var isButtonPressedDown = false;
             val buttonDown = Button(context).apply {
                 id = View.generateViewId()
                 layoutParams = ConstraintLayout.LayoutParams(
@@ -166,6 +169,33 @@ abstract class BinaryOperator(coordinateOfBlock: Coordinate = Coordinate(0,0),
                     startToStart = ConstraintSet.PARENT_ID
                     endToEnd = ConstraintSet.PARENT_ID
                     verticalBias = 1.0f
+                }
+                setOnClickListener{
+                    if (isButtonPressedDown) {
+                        setBackgroundResource(R.drawable.pin)
+                        numberOfClickedButtons -= 1;
+                        isButtonPressedDown = false;
+                        setIsClicked(false);
+                        if (allTemporaryBlocks.size > 0)
+                        {
+                            for (i in allTemporaryBlocks.indices)
+                            {
+                                if (allTemporaryBlocks[i] == getBlockAsBlock())
+                                {
+                                    allTemporaryBlocks.removeAt(i);
+                                }
+                            }
+                        }
+                    } else if (numberOfClickedButtons < 2) {
+                        setBackgroundResource(R.drawable.square);
+                        numberOfClickedButtons += 1;
+                        isButtonPressedDown = true;
+                        setIsClicked(true);
+                        if (getBlockAsBlock() != null)
+                        {
+                            allTemporaryBlocks.add(getBlockAsBlock()!!);
+                        }
+                    }
                 }
                 setBackgroundResource(R.drawable.pin)
             }
@@ -187,18 +217,23 @@ abstract class BinaryOperator(coordinateOfBlock: Coordinate = Coordinate(0,0),
 
             val newConstraintSet = ConstraintSet().apply {
                 clone(childLayout)
-                connect(microSecondBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
-                connect(microSecondBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
-                connect(microSecondBlock.id, ConstraintSet.LEFT, childLayout.id, ConstraintSet.LEFT);
+                if (microSecondBlock != null) {
+                    connect(microSecondBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP)
+                    connect(microSecondBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
+                    connect(microSecondBlock.id, ConstraintSet.LEFT, childLayout.id, ConstraintSet.LEFT);
+                };
 
                 connect(textView.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM)
                 connect(textView.id, ConstraintSet.LEFT, childLayout.id, ConstraintSet.LEFT)
                 connect(textView.id, ConstraintSet.RIGHT, childLayout.id, ConstraintSet.RIGHT)
                 connect(textView.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP)
 
-                connect(microFirstBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
-                connect(microFirstBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
-                connect(microFirstBlock.id, ConstraintSet.RIGHT, childLayout.id, ConstraintSet.RIGHT);
+                if (microFirstBlock != null)
+                {
+                    connect(microFirstBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
+                    connect(microFirstBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
+                    connect(microFirstBlock.id, ConstraintSet.RIGHT, childLayout.id, ConstraintSet.RIGHT);
+                }
 
                 connect(buttonDown.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP)
                 connect(buttonDown.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM)
@@ -221,24 +256,31 @@ abstract class BinaryOperator(coordinateOfBlock: Coordinate = Coordinate(0,0),
             val constraintSet = ConstraintSet().apply {
                 clone(childLayout)
 
-                connect(microSecondBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
-                connect(microSecondBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
-                connect(microSecondBlock.id, ConstraintSet.LEFT, childLayout.id, ConstraintSet.LEFT);
+                if (microSecondBlock != null)
+                {
+                    connect(microSecondBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
+                    connect(microSecondBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
+                    connect(microSecondBlock.id, ConstraintSet.LEFT, childLayout.id, ConstraintSet.LEFT);
+                }
 
                 connect(textView.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM)
                 connect(textView.id, ConstraintSet.LEFT, childLayout.id, ConstraintSet.LEFT)
                 connect(textView.id, ConstraintSet.RIGHT, childLayout.id, ConstraintSet.RIGHT)
                 connect(textView.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP)
 
-                connect(microFirstBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
-                connect(microFirstBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
-                connect(microFirstBlock.id, ConstraintSet.RIGHT, childLayout.id, ConstraintSet.RIGHT);
+                if (microFirstBlock != null)
+                {
+                    connect(microFirstBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
+                    connect(microFirstBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
+                    connect(microFirstBlock.id, ConstraintSet.RIGHT, childLayout.id, ConstraintSet.RIGHT);
+                }
+
             }
 
             constraintSet.applyTo(childLayout);
         }
 
-        return parentLayout;
+        setBlockAsBlock(parentLayout);
     }
 
 }
@@ -246,11 +288,19 @@ abstract class BinaryOperator(coordinateOfBlock: Coordinate = Coordinate(0,0),
 abstract class UnaryOperator(coordinateOfBlock: Coordinate,
                              sizeOfBlock: Size,
                              pinsOfBlock: Int,
-                             symbolOfOperation: String) :
+                             symbolOfOperation: String,
+                             isClicked: Boolean,
+                             blockAsBlock: ConstraintLayout?,
+                             isButtonPressedUp: Boolean,
+                             isButtonPressedDown: Boolean) :
     Operator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        isClicked,
+        symbolOfOperation,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown)
 {
 
 }
@@ -258,11 +308,19 @@ abstract class UnaryOperator(coordinateOfBlock: Coordinate,
 abstract class TernaryOperator(coordinateOfBlock: Coordinate,
                                sizeOfBlock: Size,
                                pinsOfBlock: Int,
-                               symbolOfOperation: String) :
+                               symbolOfOperation: String,
+                               isClicked: Boolean,
+                               blockAsBlock: ConstraintLayout?,
+                               isButtonPressedUp: Boolean,
+                               isButtonPressedDown: Boolean) :
     Operator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        isClicked,
+        symbolOfOperation,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown)
 {
 
 }
@@ -270,11 +328,19 @@ abstract class TernaryOperator(coordinateOfBlock: Coordinate,
 abstract class AssignmentOperator(coordinateOfBlock: Coordinate,
                                   sizeOfBlock: Size,
                                   pinsOfBlock: Int,
-                                  symbolOfOperation: String) :
+                                  symbolOfOperation: String,
+                                  isClicked: Boolean,
+                                  blockAsBlock: ConstraintLayout?,
+                                  isButtonPressedUp: Boolean,
+                                  isButtonPressedDown: Boolean) :
     BinaryOperator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        symbolOfOperation,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown)
 {
 
 }
@@ -282,11 +348,19 @@ abstract class AssignmentOperator(coordinateOfBlock: Coordinate,
 abstract class ArithmeticOperator(coordinateOfBlock: Coordinate = Coordinate(0,0),
                               sizeOfBlock: Size = Size(130, 180),
                               pinsOfBlock: Int = 2,
-                              symbolOfOperation: String = "!") :
+                              symbolOfOperation: String = "!",
+                                  isClicked: Boolean = false,
+                                  blockAsBlock: ConstraintLayout? = null,
+                                  isButtonPressedUp: Boolean = false,
+                                  isButtonPressedDown: Boolean = false) :
     BinaryOperator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation)
+        symbolOfOperation,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown)
 {
 
 
@@ -312,11 +386,19 @@ enum class FinalClasses
 class Addition(coordinateOfBlock: Coordinate = Coordinate(0,0),
                sizeOfBlock: Size = Size(130, 180),
                pinsOfBlock: Int = 2,
-               symbolOfOperation: String = "+") :
+               symbolOfOperation: String = "+",
+               isClicked: Boolean = false,
+               blockAsBlock: ConstraintLayout? = null,
+               isButtonPressedUp: Boolean = false,
+               isButtonPressedDown: Boolean = false) :
     ArithmeticOperator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation), anyFinalBlock
+        symbolOfOperation,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown), anyFinalBlock
 {
 
 }
@@ -324,11 +406,19 @@ class Addition(coordinateOfBlock: Coordinate = Coordinate(0,0),
 class Subtraction(coordinateOfBlock: Coordinate = Coordinate(0,0),
                    sizeOfBlock: Size = Size(130, 180),
                    pinsOfBlock: Int = 2,
-                   symbolOfOperation: String = "-") :
+                   symbolOfOperation: String = "-",
+                  isClicked: Boolean = false,
+                  blockAsBlock: ConstraintLayout? = null,
+                  isButtonPressedUp: Boolean = false,
+                  isButtonPressedDown: Boolean = false) :
     ArithmeticOperator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation), anyFinalBlock
+        symbolOfOperation,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown), anyFinalBlock
 {
 
 }
@@ -336,11 +426,19 @@ class Subtraction(coordinateOfBlock: Coordinate = Coordinate(0,0),
 class Modulo(coordinateOfBlock: Coordinate = Coordinate(0,0),
              sizeOfBlock: Size = Size(130, 180),
              pinsOfBlock: Int = 2,
-             symbolOfOperation: String = "%") :
+             symbolOfOperation: String = "%",
+             isClicked: Boolean = false,
+             blockAsBlock: ConstraintLayout? = null,
+             isButtonPressedUp: Boolean = false,
+             isButtonPressedDown: Boolean = false) :
     ArithmeticOperator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation), anyFinalBlock
+        symbolOfOperation,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown), anyFinalBlock
 {
 
 }
@@ -348,11 +446,19 @@ class Modulo(coordinateOfBlock: Coordinate = Coordinate(0,0),
 class Division(coordinateOfBlock: Coordinate = Coordinate(0,0),
                sizeOfBlock: Size = Size(130, 180),
                pinsOfBlock: Int = 2,
-               symbolOfOperation: String = "/") :
+               symbolOfOperation: String = "/",
+               isClicked: Boolean = false,
+               blockAsBlock: ConstraintLayout? = null,
+               isButtonPressedUp: Boolean = false,
+               isButtonPressedDown: Boolean = false) :
     ArithmeticOperator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation), anyFinalBlock
+        symbolOfOperation,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown), anyFinalBlock
 {
 
 }
@@ -360,11 +466,19 @@ class Division(coordinateOfBlock: Coordinate = Coordinate(0,0),
 class Multiplication(coordinateOfBlock: Coordinate = Coordinate(0,0),
                      sizeOfBlock: Size = Size(130, 180),
                      pinsOfBlock: Int = 2,
-                     symbolOfOperation: String = "*") :
+                     symbolOfOperation: String = "*",
+                     isClicked: Boolean = false,
+                     blockAsBlock: ConstraintLayout? = null,
+                     isButtonPressedUp: Boolean = false,
+                     isButtonPressedDown: Boolean = false) :
     ArithmeticOperator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation), anyFinalBlock
+        symbolOfOperation,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown), anyFinalBlock
 {
 
 }
@@ -372,54 +486,29 @@ class Multiplication(coordinateOfBlock: Coordinate = Coordinate(0,0),
 class Initialization(coordinateOfBlock: Coordinate = Coordinate(0,0),
                      sizeOfBlock: Size = Size(130, 180),
                      pinsOfBlock: Int = 2,
-                     symbolOfOperation: String = "") :
+                     symbolOfOperation: String = "",
+                     isClicked: Boolean = false,
+                     blockAsBlock: ConstraintLayout? = null,
+                     isButtonPressedUp: Boolean = false,
+                     isButtonPressedDown: Boolean = false) :
     UnaryOperator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation), anyFinalBlock
+        symbolOfOperation,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown), anyFinalBlock
 {
-    override fun makeBlock(context: Context) : ConstraintLayout
+    override fun makeBlockAsBlock(context: Context)
     {
         val parentLayout = ConstraintLayout(context).apply {
             id = View.generateViewId()
             layoutParams = ConstraintLayout.LayoutParams(
                 (getSizeOfBlock().getWidth() * context.resources.displayMetrics.density).toInt(),
                 (getSizeOfBlock().getHeight() * context.resources.displayMetrics.density).toInt()
-            )
-            setOnClickListener{v->
-                val clipData = ClipData.newPlainText("", "")
-                val shadowBuilder = View.DragShadowBuilder(v)
-
-                v.startDragAndDrop(clipData, shadowBuilder, v, 0)
-
-                true
-            }
-            setOnDragListener{v, event->
-                when(event.action)
-                {
-                    DragEvent.ACTION_DRAG_STARTED -> {
-                        // Действия, выполняемые при начале перетаскивания
-                        true
-                    }
-                    DragEvent.ACTION_DRAG_ENTERED -> {
-                        // Действия, выполняемые при входе в область перетаскивания
-                        true
-                    }
-                    DragEvent.ACTION_DRAG_EXITED -> {
-                        // Действия, выполняемые при выходе из области перетаскивания
-                        true
-                    }
-                    DragEvent.ACTION_DROP -> {
-                        // Действия, выполняемые при отпускании элемента
-                        true
-                    }
-                    DragEvent.ACTION_DRAG_ENDED -> {
-                        // Действия, выполняемые при окончании перетаскивания
-                        true
-                    }
-                    else -> false
-                }
-
+            ).apply {
+                topMargin = (-20 * context.resources.displayMetrics.density).toInt();
             }
             setBackgroundResource(R.drawable.empty_element)
         }
@@ -439,10 +528,12 @@ class Initialization(coordinateOfBlock: Coordinate = Coordinate(0,0),
 
         ///////////////////////////////////////////////
 
-        val microFirstBlock = BlockUI(Coordinate(0,0),
+        val microFirst = BlockUI(Coordinate(0,0),
             Size((getSizeOfBlock().getHeight()*0.4).toInt(),
                 (getSizeOfBlock().getWidth()*0.4).toInt() ),
-            2).makeBlock(context);
+            2, false);
+        microFirst.makeBlockAsBlock(context);
+        val microFirstBlock = microFirst.getBlockAsBlock();
 
         val editText = EditText(context).apply {
             id = EditText.generateViewId()
@@ -472,6 +563,34 @@ class Initialization(coordinateOfBlock: Coordinate = Coordinate(0,0),
                     startToStart = ConstraintSet.PARENT_ID
                     endToEnd = ConstraintSet.PARENT_ID
                 }
+                setOnClickListener{
+
+                    if (getIsButtonPressedUp()) {
+                        setBackgroundResource(R.drawable.pin)
+                        numberOfClickedButtons -= 1;
+                        setIsButtonPressedUp(false);
+                        setIsClicked(false);
+                        if (allTemporaryBlocks.size > 0)
+                        {
+                            for (i in allTemporaryBlocks.indices)
+                            {
+                                if (allTemporaryBlocks[i] == getBlockAsBlock())
+                                {
+                                    allTemporaryBlocks.removeAt(i);
+                                }
+                            }
+                        }
+                    } else if (numberOfClickedButtons < 2) {
+                        setBackgroundResource(R.drawable.square);
+                        numberOfClickedButtons += 1;
+                        setIsButtonPressedUp(true);
+                        setIsClicked(true);
+                        if (getBlockAsBlock() != null)
+                        {
+                            allTemporaryBlocks.add(getBlockAsBlock()!!);
+                        }
+                    }
+                }
                 setBackgroundResource(R.drawable.pin)
             }
 
@@ -486,6 +605,33 @@ class Initialization(coordinateOfBlock: Coordinate = Coordinate(0,0),
                     startToStart = ConstraintSet.PARENT_ID
                     endToEnd = ConstraintSet.PARENT_ID
                     verticalBias = 1.0f
+                }
+                setOnClickListener{
+                    if (getIsButtonPressedDown()) {
+                        setBackgroundResource(R.drawable.pin)
+                        numberOfClickedButtons -= 1;
+                        setIsButtonPressedDown(false);
+                        setIsClicked(false);
+                        if (allTemporaryBlocks.size > 0)
+                        {
+                            for (i in allTemporaryBlocks.indices)
+                            {
+                                if (allTemporaryBlocks[i] == getBlockAsBlock())
+                                {
+                                    allTemporaryBlocks.removeAt(i);
+                                }
+                            }
+                        }
+                    } else if (numberOfClickedButtons < 2) {
+                        setBackgroundResource(R.drawable.square);
+                        numberOfClickedButtons += 1;
+                        setIsButtonPressedDown(true);
+                        setIsClicked(true);
+                        if (getBlockAsBlock() != null)
+                        {
+                            allTemporaryBlocks.add(getBlockAsBlock()!!);
+                        }
+                    }
                 }
                 setBackgroundResource(R.drawable.pin)
             }
@@ -510,9 +656,12 @@ class Initialization(coordinateOfBlock: Coordinate = Coordinate(0,0),
                 connect(editText.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
                 connect(editText.id, ConstraintSet.LEFT, childLayout.id, ConstraintSet.LEFT);
 
-                connect(microFirstBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
-                connect(microFirstBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
-                connect(microFirstBlock.id, ConstraintSet.RIGHT, childLayout.id, ConstraintSet.RIGHT);
+                if (microFirstBlock != null)
+                {
+                    connect(microFirstBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
+                    connect(microFirstBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
+                    connect(microFirstBlock.id, ConstraintSet.RIGHT, childLayout.id, ConstraintSet.RIGHT);
+                }
 
                 connect(buttonDown.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP)
                 connect(buttonDown.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM)
@@ -538,15 +687,18 @@ class Initialization(coordinateOfBlock: Coordinate = Coordinate(0,0),
                 connect(editText.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
                 connect(editText.id, ConstraintSet.LEFT, childLayout.id, ConstraintSet.LEFT);
 
-                connect(microFirstBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
-                connect(microFirstBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
-                connect(microFirstBlock.id, ConstraintSet.RIGHT, childLayout.id, ConstraintSet.RIGHT);
+                if (microFirstBlock != null)
+                {
+                    connect(microFirstBlock.id, ConstraintSet.TOP, childLayout.id, ConstraintSet.TOP);
+                    connect(microFirstBlock.id, ConstraintSet.BOTTOM, childLayout.id, ConstraintSet.BOTTOM);
+                    connect(microFirstBlock.id, ConstraintSet.RIGHT, childLayout.id, ConstraintSet.RIGHT);
+                }
             }
 
             constraintSet.applyTo(childLayout);
         }
 
-        return parentLayout;
+        setBlockAsBlock(parentLayout);
     }
 
 
@@ -555,64 +707,47 @@ class Initialization(coordinateOfBlock: Coordinate = Coordinate(0,0),
 class DirectAssignment(coordinateOfBlock: Coordinate = Coordinate(0,0),
                        sizeOfBlock: Size = Size(130, 180),
                        pinsOfBlock: Int = 2,
-                       symbolOfOperation: String = "=") :
+                       symbolOfOperation: String = "=",
+                       isClicked: Boolean = false,
+                       blockAsBlock: ConstraintLayout? = null,
+                       isButtonPressedUp: Boolean = false,
+                       isButtonPressedDown: Boolean = false) :
     AssignmentOperator(coordinateOfBlock,
         sizeOfBlock,
         pinsOfBlock,
-        symbolOfOperation), anyFinalBlock
+        symbolOfOperation,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown), anyFinalBlock
 {
 
 }
 
 class Variable(coordinateOfBlock: Coordinate = Coordinate(0, 0),
                sizeOfBlock: Size = Size(130, 180),
-               pinsOfBlock: Int = 2) :
+               pinsOfBlock: Int = 2,
+               isClicked: Boolean = false,
+               blockAsBlock: ConstraintLayout? = null,
+               isButtonPressedUp: Boolean = false,
+               isButtonPressedDown: Boolean = false) :
     BlockUI(coordinateOfBlock,
         sizeOfBlock,
-        pinsOfBlock), anyFinalBlock
+        pinsOfBlock,
+        isClicked,
+        blockAsBlock,
+        isButtonPressedUp,
+        isButtonPressedDown), anyFinalBlock
 {
-    override fun makeBlock(context: Context) : ConstraintLayout
+    override fun makeBlockAsBlock(context: Context)
     {
         val parentLayout = ConstraintLayout(context).apply {
             id = ConstraintLayout.generateViewId()
             layoutParams = ConstraintLayout.LayoutParams(
                 (getSizeOfBlock().getWidth() * context.resources.displayMetrics.density).toInt(),
                 (getSizeOfBlock().getHeight() * context.resources.displayMetrics.density).toInt()
-            )
-            setOnClickListener{v->
-                val clipData = ClipData.newPlainText("", "")
-                val shadowBuilder = View.DragShadowBuilder(v)
-
-                v.startDragAndDrop(clipData, shadowBuilder, v, 0)
-
-                true
-            }
-            setOnDragListener{v, event->
-                when(event.action)
-                {
-                    DragEvent.ACTION_DRAG_STARTED -> {
-                        // Действия, выполняемые при начале перетаскивания
-                        true
-                    }
-                    DragEvent.ACTION_DRAG_ENTERED -> {
-                        // Действия, выполняемые при входе в область перетаскивания
-                        true
-                    }
-                    DragEvent.ACTION_DRAG_EXITED -> {
-                        // Действия, выполняемые при выходе из области перетаскивания
-                        true
-                    }
-                    DragEvent.ACTION_DROP -> {
-                        // Действия, выполняемые при отпускании элемента
-                        true
-                    }
-                    DragEvent.ACTION_DRAG_ENDED -> {
-                        // Действия, выполняемые при окончании перетаскивания
-                        true
-                    }
-                    else -> false
-                }
-
+            ).apply {
+                topMargin = (-20 * context.resources.displayMetrics.density).toInt();
             }
             setBackgroundResource(R.drawable.empty_element)
         }
@@ -660,6 +795,33 @@ class Variable(coordinateOfBlock: Coordinate = Coordinate(0, 0),
                     startToStart = ConstraintSet.PARENT_ID
                     endToEnd = ConstraintSet.PARENT_ID
                 }
+                setOnClickListener{
+                    if (getIsButtonPressedUp()) {
+                        setBackgroundResource(R.drawable.pin)
+                        numberOfClickedButtons -= 1;
+                        setIsButtonPressedUp(false);
+                        setIsClicked(false);
+                        if (allTemporaryBlocks.size > 0)
+                        {
+                            for (i in allTemporaryBlocks.indices)
+                            {
+                                if (allTemporaryBlocks[i] == getBlockAsBlock())
+                                {
+                                    allTemporaryBlocks.removeAt(i);
+                                }
+                            }
+                        }
+                    } else if (numberOfClickedButtons < 2){
+                        setBackgroundResource(R.drawable.square);
+                        numberOfClickedButtons += 1;
+                        setIsButtonPressedUp(true);
+                        setIsClicked(true);
+                        if (getBlockAsBlock() != null)
+                        {
+                            allTemporaryBlocks.add(getBlockAsBlock()!!);
+                        }
+                    }
+                }
                 setBackgroundResource(R.drawable.pin)
             }
 
@@ -674,6 +836,33 @@ class Variable(coordinateOfBlock: Coordinate = Coordinate(0, 0),
                     startToStart = ConstraintSet.PARENT_ID
                     endToEnd = ConstraintSet.PARENT_ID
                     verticalBias = 1.0f
+                }
+                setOnClickListener{
+                    if (getIsButtonPressedDown()) {
+                        setBackgroundResource(R.drawable.pin)
+                        numberOfClickedButtons -= 1;
+                        setIsButtonPressedDown(false);
+                        setIsClicked(false);
+                        if (allTemporaryBlocks.size > 0)
+                        {
+                            for (i in allTemporaryBlocks.indices)
+                            {
+                                if (allTemporaryBlocks[i] == getBlockAsBlock())
+                                {
+                                    allTemporaryBlocks.removeAt(i);
+                                }
+                            }
+                        }
+                    } else if (numberOfClickedButtons < 2) {
+                        setBackgroundResource(R.drawable.square);
+                        numberOfClickedButtons += 1;
+                        setIsButtonPressedDown(true);
+                        setIsClicked(true);
+                        if (getBlockAsBlock() != null)
+                        {
+                            allTemporaryBlocks.add(getBlockAsBlock()!!);
+                        }
+                    }
                 }
                 setBackgroundResource(R.drawable.pin)
             }
@@ -720,7 +909,7 @@ class Variable(coordinateOfBlock: Coordinate = Coordinate(0, 0),
             constraintSet.applyTo(parentLayout)
         }
 
-        return parentLayout;
+        setBlockAsBlock(parentLayout);
     }
 
 
