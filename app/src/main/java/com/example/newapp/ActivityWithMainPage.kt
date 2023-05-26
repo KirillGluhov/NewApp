@@ -7,6 +7,119 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import uiblockvarioustypesofblocks.*
 
 class ActivityWithMainPage : AppCompatActivity() {
+    /* drag'n'drop с вставкой одного блока в другой. Всего их два здесь
+import android.content.ClipData
+import android.content.ClipDescription
+import android.graphics.Color
+import android.os.Bundle
+import android.view.DragEvent
+import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val block1 = findViewById<LinearLayout>(R.id.block1)
+        val block2 = findViewById<LinearLayout>(R.id.block2)
+
+        // Устанавливаем слушатели Drag and Drop для блоков
+        block1.setOnLongClickListener { startDrag(it) }
+        block2.setOnLongClickListener { startDrag(it) }
+
+        // Устанавливаем слушатель Drag and Drop на контейнеры блоков
+        val block1Content = findViewById<LinearLayout>(R.id.block1_content)
+        val block2Content = findViewById<LinearLayout>(R.id.block2_content)
+        block1Content.setOnDragListener { _, event -> onDrag(event) }
+        block2Content.setOnDragListener { _, event -> onDrag(event) }
+    }
+
+    private fun startDrag(view: View): Boolean {
+        val item = ClipData.Item(view.tag as? CharSequence)
+        val dragData = ClipData(
+            view.tag.toString(),
+            arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
+            item
+        )
+        view.startDragAndDrop(dragData, View.DragShadowBuilder(view), null, 0)
+        return true
+    }
+
+    private fun onDrag(event: DragEvent): Boolean {
+        val container = event.localState as? ViewGroup
+        val draggedView = event.localState as? View
+
+        when (event.action) {
+            DragEvent.ACTION_DRAG_STARTED -> {
+                if (event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+                    container?.setBackgroundColor(Color.GREEN)
+                    container?.invalidate()
+                    return true
+                }
+                return false
+            }
+
+            DragEvent.ACTION_DRAG_ENTERED -> {
+                container?.setBackgroundColor(Color.BLUE)
+                container?.invalidate()
+                return true
+            }
+
+            DragEvent.ACTION_DRAG_EXITED -> {
+                container?.setBackgroundColor(Color.GREEN)
+                container?.invalidate()
+                return true
+            }
+
+            DragEvent.ACTION_DROP -> {
+                val text = event.clipData.getItemAt(0).text
+                container?.setBackgroundColor(Color.GREEN)
+                container?.invalidate()
+
+                // Создаем новый блок, который будет добавлен внутрь текущего контейнера
+                val newBlock = createBlock(text.toString())
+
+                // Добавляем новый блок в контейнер
+                container?.addView(newBlock)
+                return true
+            }
+
+            DragEvent.ACTION_DRAG_ENDED -> {
+                container?.setBackgroundColor(Color.WHITE)
+                container?.invalidate()
+                return true
+            }
+
+            else -> return false
+        }
+    }
+
+    private fun createBlock(text: String): View {
+        val layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+
+        val block = LinearLayout(this)
+        block.layoutParams = layoutParams
+        block.background = resources.getDrawable(R.drawable.block_background)
+        block.orientation = LinearLayout.VERTICAL
+        block.setPadding(16, 16, 16, 16)
+
+        val textView = TextView(this)
+        textView.layoutParams = layoutParams
+        textView.text = text
+        textView.setTextColor(Color.WHITE)
+        textView.textSize = 18f
+
+        block.addView(textView)
+        return block
+    }
+}
+*/
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_page);
