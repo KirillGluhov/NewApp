@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import uiblock.allTemporaryBlocks
 import uiblock.numberOfClickedButtons
 import uiblockvarioustypesofblocks.*
+import java.util.Hashtable
 
 class ActivityWithMainPage : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +57,7 @@ class ActivityWithMainPage : AppCompatActivity() {
             mainField.addView(newPrint.getBlockAsBlock());
         }
 
-        val allVariables = hashTable();
+        val allVariables = Hashtable<String?, Int?>();
 
         buttonStart.setOnClickListener{
             for (block in allBlocks)
@@ -73,11 +74,11 @@ class ActivityWithMainPage : AppCompatActivity() {
                         {
                             if (variable[variable.length-1] == ',')
                             {
-                                allVariables.getHashTable().add(element(variable.substring(0, variable.length-2), 0));
+                                allVariables[variable.substring(0, variable.length-2)] = 0;
                             }
                             else
                             {
-                                allVariables.getHashTable().add(element(variable, 0));
+                                allVariables[variable] = 0;
                             }
                         }
                     }
@@ -87,14 +88,28 @@ class ActivityWithMainPage : AppCompatActivity() {
                     var stringOnThisBlock = block.getEditedTextFirst()?.text.toString();
                     var potentialVariables = stringOnThisBlock.split(" ");
 
+                    var newInterpretator = Interpretate;
+
                     if (potentialVariables.size > 1)
                     {
                         val message = "You can't use directAssignment for several variables";
                         val newToast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
                         newToast.show()
                     }
-                    else
+                    else if (potentialVariables.size == 1)
                     {
+                        var stringOperations = block.getEditedTextSecond()?.text.toString();
+
+                        for (variable in potentialVariables)
+                        {
+                            for (temporaryValue in allVariables)
+                            {
+                                if (variable == temporaryValue.key.toString())
+                                {
+                                    allVariables[variable] = newInterpretator.calculate(stringOperations, allVariables);
+                                }
+                            }
+                        }
 
                     }
                 }
@@ -106,7 +121,7 @@ class ActivityWithMainPage : AppCompatActivity() {
 
                     for (variable in potentialVariables)
                     {
-                        for (value in allVariables.getHashTable())
+                        for (value in allVariables)
                         {
                             var finalString: String = variable;
                             if (variable[variable.length-1] == ',')
@@ -114,9 +129,9 @@ class ActivityWithMainPage : AppCompatActivity() {
                                 finalString = variable.substring(0, variable.length-2);
                             }
 
-                            if (finalString == value.getName())
+                            if (finalString == value.key)
                             {
-                                val message = value.getName() + " " + value.getValue()
+                                val message = value.key + " " + value.value;
                                 val newToast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
                                 newToast.show()
                             }
